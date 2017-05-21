@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+<head></head>
+	<title>
+		Buzzy
+	</title>
+	<script src="/socket.io/socket.io.js"></script>
+	<script> 
+	var socket = io();
+	function setUser(){
+		socket.emit('setUser', document.getElementById('name').value);
+		};
+	var user;
+	socket.on('useralready', function(data){
+            document.getElementById('error-container').innerHTML = data;
+        });
+		socket.on('saveuser', function(data){
+			user = data.username;
+			document.body.innerHTML = '<input type="text" id="message">\
+            <button type="button" name="button" onclick="sendmessage()">Send</button>\
+            <div id="message-container"></div>';
+		});
+	function sendmessage(){
+		var msg = document.getElementById('message').value;
+		if (msg){
+			socket.emit('msg', {message: msg , user: user});
+		}
+	}
+	socket.on('newmsg', function(data){
+            if(user){
+                document.getElementById('message-container').innerHTML += '<div><b>' + data.user + '</b>: ' + data.message + '</div>'
+            }
+        });
+	</script>
+<body>
+	<div id="error-container"></div>
+    <input id="name" type="text" name="name" value="" placeholder="Enter your name!">
+    <button type="button" name="button" onclick="setUser()">Enter you name</button>
+</body>
+</html>
